@@ -186,7 +186,7 @@ class Milp:
 
         my_sense += "E" # sum of z must be exactly 1
 
-        my_sense += "E" # sum of all the x's must be an equality? <----------------- !!! Check this !!! <--------------------
+        my_sense += "L" # sum of all the x's must be an equality? <----------------- !!! Check this !!! <--------------------
 
         # y constraints are next. These are also equals
         for i in range(self.num_y):
@@ -243,7 +243,7 @@ class Milp:
 
             for j in range(len(x_list)):
                 y_list.append(x_list[j])
-                y_coef.append(1.0)
+                y_coef.append(-1.0)
 
             rows_list.append([copy.deepcopy(y_list), copy.deepcopy(y_coef)])
             y_list.clear()
@@ -328,7 +328,7 @@ class Milp:
 
         my_ctypes = self.get_ctypes()
         print("ctype len = " + str(len(my_ctypes)))
-        print(my_obj)
+        print(my_ctypes)
 
         my_col_names = self.get_col_names()
         print("cols len = " + str(len(my_col_names)))
@@ -378,7 +378,7 @@ class Milp:
             print("Column  %d:" + str(j) + ": " + my_col_names[j])
 
 
-        print("ass")
+        print("")
 
     def print_all(self):
         print(self.get_obj())
@@ -393,7 +393,79 @@ class Milp:
         print(self.get_sense())
         print(self.get_rows())
 
+    def print_problem(self):
+        my_obj = self.get_obj()
+
+        my_ub = self.get_ub()
+
+        my_lb = self.get_lb()
+
+        my_ctypes = self.get_ctypes()
+
+        my_col_names = self.get_col_names()
+
+        my_rhs = self.get_rhs()
+
+        my_row_names = self.get_row_names()
+
+        my_sense = self.get_sense()
+
+        my_rows = self.get_rows()
+        #print("rows len = " + str(len(my_rows)))
+        #for i in range(len(my_rows)):
+            #print(my_rows[i])
+
+        obj_state = "Objective Statement: maximize "
+        for i in range(len(my_obj)):
+            if my_obj[i] != 0.0:
+                obj_state += my_col_names[i]
+
+        print(obj_state)
+
+        for i in range(len(my_col_names)):
+            cons = ""
+            cons += str(my_lb[i])
+            cons += " < "
+            cons += str(my_col_names[i])
+            cons += " < "
+            cons += str(my_ub[i])
+            cons += ", "
+
+            if my_ctypes[i] == "I":
+                cons += "Integers"
+            else:
+                cons += "mixed numbers"
+
+            print(cons)
+
+        for i in range(len(my_row_names)):
+            cons = ""
+            cons += str(my_row_names[i])
+            cons += ": "
+
+            for j in range(len(my_rows[i][0])):
+                cons += "("
+                cons += str(my_rows[i][1][j])
+                cons += ")"
+                cons += str(my_rows[i][0][j])
+                if j != (len(my_rows[i][0]) - 1):
+                    cons += " + "
+
+            if my_sense[i] == "E":
+                cons += " = "
+            elif my_sense[i] == "G":
+                cons += " > "
+            else:
+                cons += " < "
+
+            cons += str(my_rhs[i])
+
+            print(cons)
+
+
     def start(self):
+
+        #self.print_problem()
 
         self.run_cplex()
         '''
