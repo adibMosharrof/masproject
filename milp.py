@@ -19,7 +19,7 @@ class Milp:
         self.num_z = self.number_targets
         self.index_paths = self.convert_paths()
         self.payoff_mat = self.generate_payoffs()
-        self.M_var = 1000
+        self.M_var = 1000.0
 
     def print_strats(self):
         comb = self.get_path_combinations()
@@ -255,7 +255,7 @@ class Milp:
 
         for i in range(self.number_targets):
             def_util_vars = (["v_def", ("y" + str(i+1)), ("z" + str(i+1))])
-            def_util_coef = ([1.0, ((-1 * self.payoff_mat[i]) - self.payoff_mat[i]), self.M_var])
+            def_util_coef = ([1.0, float(((-1 * self.payoff_mat[i]) - self.payoff_mat[i])), self.M_var])
 
             rows_list.append([copy.deepcopy(def_util_vars), copy.deepcopy(def_util_coef)])
             def_util_vars.clear()
@@ -267,7 +267,7 @@ class Milp:
 
         for i in range(self.number_targets):
             att_strat_vars = (["v_att", ("y" + str(i+1))])
-            att_strat_coef = ([1.0, (self.payoff_mat[i] - (-1 * self.payoff_mat[i]))])
+            att_strat_coef = ([1.0, float((self.payoff_mat[i] - (-1 * self.payoff_mat[i])))])
 
             rows_list.append([copy.deepcopy(att_strat_vars), copy.deepcopy(att_strat_coef)])
             att_strat_vars.clear()
@@ -279,7 +279,7 @@ class Milp:
 
         for i in range(self.number_targets):
             att_util_vars = (["v_att", ("y" + str(i+1)), ("z" + str(i+1))])
-            att_util_coef = ([1.0, (self.payoff_mat[i] - (-1 * self.payoff_mat[i])), self.M_var])
+            att_util_coef = ([1.0, float((self.payoff_mat[i] - (-1 * self.payoff_mat[i]))), self.M_var])
 
             rows_list.append([copy.deepcopy(att_util_vars), copy.deepcopy(att_util_coef)])
             att_util_vars.clear()
