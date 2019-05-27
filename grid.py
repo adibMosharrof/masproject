@@ -18,14 +18,14 @@ class Cell:
         return "X: %s, Y:%s, AnimalDensity:%s, HasBeenVisited:%s" % (self.x, self.y, self.animal_density, self.has_been_visited)
 
     def __repr__(self):
-        return "(X: %s, Y:%s) " % (self.x, self.y)
-        
+        return "(X:%s, Y:%s) " % (self.x, self.y)
+
     def __hash__(self):
         return hash(str(self))
-    
+
     def __eq__(self,other):
         return self.x == other.x and self.y == other.y
-    
+
 
 class GeneratePaths:
     grid = []
@@ -51,7 +51,7 @@ class GeneratePaths:
         #add current node to path and mark it as visited
         node.has_been_visited = True
         path.append(node)
-        
+
         #check if we have come to the starting node again
         #this means that a route has been created
         if self.does_starting_node_exist_twice_in_path(path):
@@ -63,10 +63,10 @@ class GeneratePaths:
             for next_node in nodes_to_expand:
                 #increase depth by expanding a node
                 self.generate_routes(depth+1, next_node, path )
-        
+
         #remove the current node to track back and find more paths
         path.pop()
-        #mark it as not visited, so that it can be reused to generate a different path        
+        #mark it as not visited, so that it can be reused to generate a different path
         node.has_been_visited = False
 
     def get_nodes_to_expand(self, node, path):
@@ -95,10 +95,10 @@ class GeneratePaths:
         if collections.Counter(p) == collections.Counter(path):
           return True
       return False
-    
+
     def does_starting_node_exist_twice_in_path(self, path):
         return path.count(self.starting_node) is 2
-    
+
     def print_paths(self, paths):
         if type(paths[0]) is list:
             for path in paths:
@@ -118,18 +118,18 @@ class GeneratePaths:
                 for j in range(self.grid_size):
                     row += grid[i][j]
                 output = row + '\n'+ output
-            print(output+"\n")    
-                
-    
-        
+            print(output+"\n")
+
+
+
 # if __name__ == '__main__':
 #     gp = GeneratePaths()
 #     gp.init_grid()
-#     
+#
 #     gp.generate_starting_point()
 #     print('starting node', gp.starting_node)
 #     gp.generate_routes(0, gp.starting_node, [])
 #     print('Num of feasible paths', len(gp.feasible_paths))
 #     gp.print_paths(gp.feasible_paths)
-   
-    
+
+
