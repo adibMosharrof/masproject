@@ -226,7 +226,7 @@ class Milp:
 
         for i in range(self.num_x):
             x_list.append("x" + str(i+1))
-            x_list.append(1.0)
+            x_coef.append(1.0)
 
         rows_list.append([x_list, x_coef])
 
