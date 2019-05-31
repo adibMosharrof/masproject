@@ -104,6 +104,7 @@ class Milp:
             my_lb.append(0.0)
 
         my_lb.append(-1 * cplex.infinity)
+        #my_lb.append(0.0)
         my_lb.append(-1 * cplex.infinity)
 
         return my_lb;
@@ -147,7 +148,9 @@ class Milp:
         my_rhs.append(1.0)
 
         # the next row is the x's which equal the number of defender resources
-        my_rhs.append(float(self.number_resources))
+        #my_rhs.append(float(self.number_resources))
+
+        my_rhs.append(1.0)
 
         # next rows will encompas all the y's which in the form y1 + x1...xm = 0
         for i in range(self.number_targets):
@@ -156,7 +159,7 @@ class Milp:
         # next we'll do the defender's utility constraint set, # constraints should be # of targets
 
         for i in range(self.number_targets):
-            my_rhs.append( self.M_var + (-1 * self.payoff_mat[i]))
+            my_rhs.append( self.M_var + float((-1 * self.payoff_mat[i])))
 
         # next we need the attacker's strategy constraint set, same as number of targets:
         for i in range(self.number_targets):
@@ -186,7 +189,7 @@ class Milp:
 
         my_sense += "E" # sum of z must be exactly 1
 
-        my_sense += "L" # sum of all the x's must be an equality? <----------------- !!! Check this !!! <--------------------
+        my_sense += "E" # sum of all the x's must be an equality? <----------------- !!! Check this !!! <--------------------
 
         # y constraints are next. These are also equals
         for i in range(self.num_y):
@@ -464,8 +467,9 @@ class Milp:
 
 
     def start(self):
-
-        #self.print_problem()
+        self.print_strats()
+        self.print_all()
+        self.print_problem()
 
         self.run_cplex()
         '''
