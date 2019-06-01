@@ -363,7 +363,8 @@ class Milp:
 
         print("Solution status = " + str(prob.solution.get_status()) + ":")
         print(str(prob.solution.status[prob.solution.get_status()]))
-        print("Solution value = " + str(prob.solution.get_objective_value()))
+        sol_val = ("Solution value = " + str(prob.solution.get_objective_value()))
+        print(sol_val)
 
         numcols = prob.variables.get_num()
         numrows = prob.linear_constraints.get_num()
@@ -371,6 +372,15 @@ class Milp:
         slack = prob.solution.get_linear_slacks()
         x = prob.solution.get_values()
 
+        x_val_list = []
+        for j in range(numcols):
+            if my_col_names[j][0] == 'x':
+                x_val = (my_col_names[j] + " = " + str(x[j]))
+                print(x_val)
+                x_val_list.append(x_val)
+
+
+        '''
         for j in range(numrows):
             print("Row %d:      Slack = %10f" % (j, slack[j]))
 
@@ -378,10 +388,15 @@ class Milp:
             print("Column %d:      Value = %10f" % (j, x[j]))
 
         for j in range(len(my_col_names)):
-            print("Column  %d:" + str(j) + ": " + my_col_names[j])
 
+            print("Column  %d:" + str(j) + ": " + my_col_names[j])
+        '''
 
         print("")
+        return x_val_list, sol_val;
+
+    def get_idx_paths(self):
+        return self.index_paths;
 
     def print_all(self):
         print(self.get_obj())
@@ -467,20 +482,11 @@ class Milp:
 
 
     def start(self):
-        self.print_strats()
-        self.print_all()
-        self.print_problem()
+        #self.print_strats()
+        #self.print_all()
+        #self.print_problem()
 
-        self.run_cplex()
-        '''
-        #print(self.feasible_paths)
-        #print("\n\n\n")
-        self.print_strats()
-        conv_paths = self.convert_paths()
-        print(conv_paths)
-        payoff_mat = self.generate_payoffs()
-        for i in range(len(payoff_mat)):
-            print(payoff_mat[i])
+        x_vals = self.run_cplex()
 
-        self.print_all()
-        '''
+        #self.print_strats()
+        return x_vals;

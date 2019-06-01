@@ -32,20 +32,52 @@ class GeneratePaths:
     starting_node = None
     max_route_length = 6
     feasible_paths = []
-    grid_size = 5
+    grid_size = 3
 
-    def init_grid(self):
-        for i in range(self.grid_size):
-            row = []
-            for j in range(self.grid_size):
-                row.append(Cell(i,j, random.randint(1,10)))
-            self.grid.append(row)
+    def init_grid(self, grid_sz, max_len, c_grid):
+        self.grid_size = grid_sz
+        self.max_route_length = max_len
 
-    def generate_starting_point(self):
-        starting_x = random.randint(0,self.grid_size-1)
-        starting_y = random.randint(0,self.grid_size-1)
-        #self.starting_node = self.grid[starting_x][starting_y]
-        self.starting_node = self.grid[0][0]
+        if len(c_grid) != self.grid_size:
+
+            for i in range(self.grid_size):
+                row = []
+                for j in range(self.grid_size):
+                    row.append(Cell(i,j, random.randint(1,10)))
+                self.grid.append(row)
+        else:
+            for i in range(self.grid_size):
+                row = []
+                for j in range(self.grid_size):
+                    row.append(Cell(i,j, c_grid[i][j]))
+                self.grid.append(row)
+
+    def gen_print_start(self):
+        return ([self.starting_node.x, self.starting_node.y]);
+
+    def gen_print_grid(self):
+        p_grid = []
+
+        for i in range(len(self.grid)):
+            p_row = []
+
+            for j in range(len(self.grid[i])):
+                p_row.append(self.grid[i][j].animal_density)
+
+            p_grid.append(p_row)
+
+        return p_grid;
+
+    def generate_starting_point(self, c_sp):
+        if len(c_sp) != 2:
+            starting_x = random.randint(0,self.grid_size-1)
+            starting_y = random.randint(0,self.grid_size-1)
+        else:
+            starting_x = c_sp[0]
+            starting_y = c_sp[1]
+
+        self.starting_node = self.grid[starting_x][starting_y]
+        #self.starting_node = self.grid[0][0]
 
     def generate_routes(self, depth, node, path):
         #add current node to path and mark it as visited
