@@ -1,7 +1,14 @@
+#############################################################
+# CIS510 MultiAgent Systems Final Project Code
+# Adib Mosharrof, Trevor Bergstrom
+# MILP File Runs the CPLEX solver
+#############################################################
+
 import math
 from itertools import combinations
 import cplex
 import copy
+import random
 
 class Milp:
     number_resources = None
@@ -58,20 +65,10 @@ class Milp:
         for i in range(len(self.play_grid)):
             for j in range(len(self.play_grid[i])):
                 payoff_mat.append(self.play_grid[i][j].animal_density)
-        '''
-        for i in range(len(self.play_grid)):
-            payoffs = []
-            for j in range(len(self.play_grid[i])):
-                payoffs.append(self.play_grid[i][j].animal_density)
-            payoff_mat.append(payoffs)
-        '''
         return payoff_mat;
 
     def get_obj(self):
         # objective function is to maximize vdef, but we need to fill in zeroes for all x's, z's, and y's as well as vatt
-
-        #num_z, num_y = self.number_targets
-        #num x = len(self.feasible_paths)
 
         my_obj = []
         for i in range(self.num_z + self.num_y + self.num_x):
@@ -104,7 +101,6 @@ class Milp:
             my_lb.append(0.0)
 
         my_lb.append(-1 * cplex.infinity)
-        #my_lb.append(0.0)
         my_lb.append(-1 * cplex.infinity)
 
         return my_lb;
@@ -318,42 +314,23 @@ class Milp:
             sense
         '''
         my_obj = self.get_obj()
-        print("objective len = " + str(len(my_obj)))
-        print(my_obj)
 
         my_ub = self.get_ub()
-        print("ub len = " + str(len(my_ub)))
-        print(my_ub)
 
         my_lb = self.get_lb()
-        print("lb len = " + str(len(my_lb)))
-        print(my_lb)
 
         my_ctypes = self.get_ctypes()
-        print("ctype len = " + str(len(my_ctypes)))
-        print(my_ctypes)
 
         my_col_names = self.get_col_names()
-        print("cols len = " + str(len(my_col_names)))
-        print(my_col_names)
 
         my_rhs = self.get_rhs()
-        print("rhs  len = " + str(len(my_rhs)))
-        print(my_rhs)
 
         my_row_names = self.get_row_names()
-        print("row names len = " + str(len(my_row_names)))
-        print(my_row_names)
 
         my_sense = self.get_sense()
-        print("sense len = " + str(len(my_sense)))
-        print(my_sense)
 
         my_rows = self.get_rows()
-        print("rows len = " + str(len(my_rows)))
-        for i in range(len(my_rows)):
-            print(my_rows[i])
-        # set up cplex
+       # set up cplex
 
         prob = cplex.Cplex()
         prob.objective.set_sense(prob.objective.sense.maximize)
@@ -363,7 +340,8 @@ class Milp:
 
         print("Solution status = " + str(prob.solution.get_status()) + ":")
         print(str(prob.solution.status[prob.solution.get_status()]))
-        print("Solution value = " + str(prob.solution.get_objective_value()))
+        sol_val = ("Solution value = " + str(prob.solution.get_objective_value()))
+        print(sol_val)
 
         numcols = prob.variables.get_num()
         numrows = prob.linear_constraints.get_num()
@@ -371,17 +349,20 @@ class Milp:
         slack = prob.solution.get_linear_slacks()
         x = prob.solution.get_values()
 
-        for j in range(numrows):
-            print("Row %d:      Slack = %10f" % (j, slack[j]))
-
+        x_val_list = []
+        sol_idx = []
         for j in range(numcols):
-            print("Column %d:      Value = %10f" % (j, x[j]))
-
-        for j in range(len(my_col_names)):
-            print("Column  %d:" + str(j) + ": " + my_col_names[j])
-
+            if my_col_names[j][0] == 'x' and x[j] != 0.0:
+                x_val = (my_col_names[j] + " = " + str(x[j]))
+                print(x_val)
+                x_val_list.append(x_val)
+                sol_idx.append(j)
 
         print("")
+        return x_val_list, sol_val, sol_idx;
+
+    def get_idx_paths(self):
+        return self.index_paths;
 
     def print_all(self):
         print(self.get_obj())
@@ -465,22 +446,20 @@ class Milp:
 
             print(cons)
 
+    def select_baseline(self):
+        num_paths = len(self.index_paths)
 
-    def start(self):
-        self.print_strats()
-        self.print_all()
-        self.print_problem()
+        path_idx = random.randint(0, num_paths-1)
 
-        self.run_cplex()
-        '''
-        #print(self.feasible_paths)
-        #print("\n\n\n")
-        self.print_strats()
-        conv_paths = self.convert_paths()
-        print(conv_paths)
-        payoff_mat = self.generate_payoffs()
-        for i in range(len(payoff_mat)):
-            print(payoff_mat[i])
+        new_path_list = [self.index_paths[path_idx]]
 
-        self.print_all()
-        '''
+        self.index_paths = new_path_list
+
+    def start(self, baseline):
+
+        if baseline == True:
+            self.select_baseline()
+
+        x_vals = self.run_cplex()
+
+        return x_vals;
